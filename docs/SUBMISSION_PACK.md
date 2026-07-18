@@ -12,6 +12,8 @@ LiDAR Forensics distinguishes sensor-specific LiDAR stalls from recording-wide g
 
 A field engineer encountered a sensor recording that standard processing could not explain. The decisive question was not simply whether a gap existed, but what stopped, what continued, and whether recorder and sensor time remained consistent. The engineer developed a multistream forensic method around those questions. LiDAR Forensics turns that method into a reusable, clean-room diagnostic product that can be demonstrated publicly without exposing a customer recording.
 
+During the original private forensic investigation, surviving post-failure sensor measurements were used to reconstruct usable point-cloud geometry that standard processing had treated as permanently lost. The public application focuses on detecting, characterizing, and reporting the failure signature. It does not perform full point-cloud reconstruction or distribute proprietary RAW data. It does not claim that every damaged recording is recoverable.
+
 ## What it does
 
 The application analyzes normalized event metadata from LiDAR, IMU, motor, encoder, and recorder timelines. It detects and distinguishes:
@@ -24,6 +26,8 @@ The application analyzes normalized event metadata from LiDAR, IMU, motor, encod
 - repeated interruptions and premature stream termination.
 
 The interface presents recording continuity, LiDAR relative availability, observed streams, an SVG multistream timeline, and a Finding register. Each finding separates confirmed facts, engineering assessment, machine-readable evidence, and recommended next tests. Results export as CSV, JSON, standalone HTML, and Markdown.
+
+The current public scope stops at diagnosis and evidence packaging. Geometric recovery depends on which measurements, timestamps, and trajectory information survived the failure.
 
 ## How it was built
 
@@ -70,7 +74,7 @@ Multistream continuity is often more informative than a single-stream error mess
 
 ## What is next
 
-Future work includes configurable stream-role profiles, packet-sequence diagnostics, clock-domain alignment, queue and frame-assembly telemetry, streaming analysis for very large recordings, and recovery-readiness scoring. A production workflow could combine detector evidence with authorized logs and packet captures while preserving the same conservative claim model.
+Future work includes configurable stream-role profiles, packet-sequence diagnostics, clock-domain alignment, queue and frame-assembly telemetry, streaming analysis for very large recordings, and recovery-readiness scoring. A later point-cloud reconstruction module could process authorized recordings only when sufficient measurements, timestamps, and trajectory information survived; it is not a currently implemented feature. A production workflow could combine detector evidence with authorized logs and packet captures while preserving the same conservative claim model.
 
 ## Privacy and public-safety statement
 

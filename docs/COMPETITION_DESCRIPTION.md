@@ -12,6 +12,8 @@ A local engineering diagnostic that distinguishes LiDAR-specific stream stalls f
 
 A field engineer encountered a sensor recording that standard processing could not explain. The engineer developed a multistream forensic method to determine what stopped, what continued, and which claims the available evidence could support. Using Codex, that investigation method became a reusable, clean-room, public-safe diagnostic product.
 
+During the original private forensic investigation, surviving post-failure sensor measurements were used to reconstruct usable point-cloud geometry that standard processing had treated as permanently lost. The public LiDAR Forensics application does not perform that reconstruction. It detects, characterizes, and reports the failure signature without distributing proprietary RAW data, and it does not claim that every damaged recording is recoverable.
+
 ## Problem
 
 When mobile mapping processing fails after a sensor interruption, the first diagnosis is often too broad: the recording stopped, all later data is gone, or the hardware must be defective. In reality, a recorder can continue capturing IMU, motor, and encoder telemetry while only the LiDAR PointCloud stream becomes silent. LiDAR publication may later resume with stale sensor timestamps and a short catch-up burst. Without a multistream timing view, those materially different failure signatures are easy to conflate.
@@ -59,10 +61,10 @@ Codex was used as an implementation partner rather than a source of measurements
 
 ## Limitations
 
-LiDAR Forensics characterizes timing signatures; it does not prove whether firmware, driver, frame assembler, publisher, network, power, or hardware caused the event. Topic-role inference is generic. Optional MCAP handling does not decode every schema. The MVP materializes events in memory and is intended for diagnostic-scale inputs. It does not reconstruct trajectories or guarantee geometric recovery.
+LiDAR Forensics characterizes timing signatures; it does not prove whether firmware, driver, frame assembler, publisher, network, power, or hardware caused the event. Topic-role inference is generic. Optional MCAP handling does not decode every schema. The MVP materializes events in memory and is intended for diagnostic-scale inputs. It does not reconstruct trajectories or point-cloud geometry and does not guarantee recovery.
 
-This tool determines whether sensor messages remain present and characterizes the failure signature. Geometric recovery depends on the surviving measurements and trajectory information.
+This tool determines whether sensor messages remain present and characterizes the failure signature. Geometric recovery depends on which measurements, timestamps, and trajectory information survived the failure.
 
 ## Future development
 
-Next steps include saved stream-role profiles, packet-sequence diagnostics, clock-domain alignment, frame-assembly and queue telemetry adapters, streaming analysis for large recordings, and recovery-readiness scoring based on surviving trajectory evidence. A production edition could package detector evidence and external logs into a standardized manufacturer escalation bundle.
+Next steps include saved stream-role profiles, packet-sequence diagnostics, clock-domain alignment, frame-assembly and queue telemetry adapters, streaming analysis for large recordings, and recovery-readiness scoring based on surviving trajectory evidence. A later, optional point-cloud reconstruction module could operate only on authorized recordings with sufficient surviving measurements, timestamps, and trajectory information; it is not part of the current public application. A production edition could package detector evidence and external logs into a standardized manufacturer escalation bundle.

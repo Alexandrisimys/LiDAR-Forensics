@@ -7,6 +7,8 @@
 
 “A field engineer encountered a sensor recording that standard processing could not explain. A broad claim that everything after one point was lost hid two different possibilities: did the whole recorder stop, or did only LiDAR publication go silent while companion telemetry continued? LiDAR Forensics makes that distinction from timing evidence.”
 
+“In the original private investigation, surviving post-failure measurements were used to reconstruct usable point-cloud geometry that standard processing had treated as permanently lost. This public application does not perform that reconstruction. It diagnoses the failure signature without distributing proprietary RAW data. It does not claim that every damaged recording is recoverable.”
+
 ## 0:18-0:34 — Establish the clean-room product
 
 “The engineer defined and validated the forensic method. Codex converted it into this local, public-safe application with deterministic synthetic data and generic stream names. AI did not discover the physical failure. The detector is the source of truth, and optional AI receives only the structured finding result.”
@@ -49,4 +51,4 @@ Select `GLOBAL_RECORDING_GAP` and show the confirmed observations.
 
 ## 2:15-2:30 — Close with scope
 
-“LiDAR Forensics turns a vague failure into an auditable evidence package and the next discriminating tests. It determines whether sensor messages remain present and characterizes the failure signature. Geometric recovery still depends on surviving measurements and trajectory information.”
+“LiDAR Forensics turns a vague failure into an auditable evidence package and the next discriminating tests. It determines whether sensor messages remain present and characterizes the failure signature. Geometric recovery depends on which measurements, timestamps, and trajectory information survived the failure. Point-cloud reconstruction is a future module, not a current feature.”

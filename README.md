@@ -10,6 +10,8 @@ The repository is a clean-room demonstration. It contains synthetic events, gene
 
 A field engineer encountered a sensor recording that standard processing could not explain. The engineer investigated the field failure, defined the diagnostic evidence and taxonomy, validated the engineering interpretation, and established conservative claim boundaries. Using Codex, that forensic method was converted into a reusable, public-safe diagnostic product.
 
+During the original private forensic investigation, surviving post-failure sensor measurements were used to reconstruct usable point-cloud geometry that standard processing had treated as permanently lost. That outcome motivated the product, but it is not a feature claim for this public release. The public application focuses on detecting, characterizing, and reporting the failure signature. It does not distribute proprietary RAW data and does not claim that every damaged recording is recoverable.
+
 Codex implemented the clean-room application, adapters, tests, deterministic synthetic datasets, interface, exports, documentation, and competition packaging. AI did not independently discover the physical failure and is not the source of measurements or engineering validation.
 
 ## Problem
@@ -153,7 +155,7 @@ The server binds to localhost. Uploaded data is processed locally; CSV and JSON 
 - The tool does not perform trajectory reconstruction or geometric recovery.
 - A timing-normal recording may still contain geometric or calibration errors.
 
-This tool determines whether sensor messages remain present and characterizes the failure signature. Geometric recovery depends on the surviving measurements and trajectory information.
+This tool determines whether sensor messages remain present and characterizes the failure signature. Geometric recovery depends on which measurements, timestamps, and trajectory information survived the failure.
 
 ## Roadmap
 
@@ -163,6 +165,7 @@ This tool determines whether sensor messages remain present and characterizes th
 - Large-recording streaming analysis.
 - Vendor-neutral hardware and firmware log adapters.
 - Recovery-readiness scoring based on surviving trajectory evidence.
+- An optional point-cloud reconstruction module for authorized recordings with sufficient surviving measurements, timestamps, and trajectory information; this is not implemented in the current public application.
 
 ## Documentation
 
