@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Local public-safe LiDAR stream diagnostics">
+  <title>LiDAR Forensics</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-block">
+      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div>
+        <h1>LiDAR Forensics</h1>
+        <p>Multistream timing diagnostics</p>
+      </div>
+    </div>
+    <div class="header-status"><span class="status-dot"></span>LOCAL · PUBLIC-SAFE</div>
+  </header>
+
+  <main>
+    <section class="control-band" aria-label="Analysis controls">
+      <div class="control-group dataset-control">
+        <label for="datasetSelect">Recording</label>
+        <select id="datasetSelect" aria-label="Demonstration dataset"></select>
+      </div>
+      <div id="customInputControl" class="control-group file-control is-passive">
+        <label for="fileInput">Optional custom input</label>
+        <p id="customInputHelp" class="input-helper">No file is required for built-in demos. Upload a normalized CSV or JSON file to analyze your own recording.</p>
+        <input id="fileInput" type="file" accept=".csv,.json,.bag,.mcap" aria-describedby="customInputHelp acceptedExtensions" hidden>
+        <div class="file-picker-row">
+          <button id="fileButton" class="button secondary" type="button">Choose file</button>
+          <span id="fileName" class="file-name" aria-live="polite">No file selected</span>
+          <span id="acceptedExtensions" class="accepted-extensions">CSV · JSON · BAG* · MCAP*</span>
+        </div>
+        <details class="input-format-help">
+          <summary>Input format</summary>
+          <div class="input-format-popover">
+            <strong>Normalized CSV or JSON events</strong>
+            <p>Required fields:</p>
+            <code>timestamp_recorded</code>
+            <code>stream_name</code>
+            <code>message_index</code>
+            <code>point_count</code>
+            <code>payload_size</code>
+            <code>device_id</code>
+            <p><code>timestamp_sensor</code> is optional but recommended. BAG and MCAP require optional adapters.</p>
+          </div>
+        </details>
+      </div>
+      <details class="thresholds">
+        <summary>Detector thresholds</summary>
+        <div class="threshold-grid">
+          <label>LiDAR rate, Hz<input id="lidarRate" type="number" min="0.1" step="0.1" value="10"></label>
+          <label>Min stall, s<input id="minStall" type="number" min="0.01" step="0.1" value="1"></label>
+          <label>Global gap, s<input id="globalGap" type="number" min="0.01" step="0.1" value="1"></label>
+          <label>Stale time, s<input id="staleTime" type="number" min="0.01" step="0.1" value="0.5"></label>
+          <label>Catch-up interval, s<input id="catchup" type="number" min="0.001" step="0.005" value="0.03"></label>
+        </div>
+      </details>
+      <button id="analyzeButton" class="button primary" type="button">Run analysis</button>
+    </section>
+
+    <section class="summary-band" aria-label="Recording summary">
+      <div class="summary-item status-summary">
+        <div class="metric-label">
+          <span>Diagnostic status</span>
+          <button class="metric-help" type="button" aria-label="About diagnostic status" data-tooltip="Top-level classification derived from the detected timing pattern.">i</button>
+        </div>
+        <strong id="statusValue">Loading</strong>
+      </div>
+      <div class="summary-item findings-summary">
+        <div class="metric-label">
+          <span>Detected findings</span>
+          <button class="metric-help" type="button" aria-label="About detected findings" data-tooltip="All non-normal detector outputs. Primary incidents identify interruption windows; related findings describe supporting diagnostics.">i</button>
+        </div>
+        <strong id="findingsValue">—</strong>
+        <small id="findingsBreakdown" class="metric-secondary">—</small>
+      </div>
+      <div class="summary-item">
+        <div class="metric-label">
+          <span>Duration</span>
+          <button class="metric-help" type="button" aria-label="About recording duration" data-tooltip="Elapsed recorder time from the first to the last normalized message.">i</button>
+        </div>
+        <strong id="durationValue">—</strong>
+      </div>
+      <div class="summary-item">
+        <div class="metric-label">
+          <span>Recording continuity</span>
+          <button class="metric-help" type="button" aria-label="About recording continuity" data-tooltip="Percentage of total duration not covered by a detected all-stream recording gap.">i</button>
+        </div>
+        <strong id="recordingContinuityValue">—</strong>
+      </div>
+      <div class="summary-item">
+        <div class="metric-label">
+          <span>LiDAR relative availability</span>
+          <button class="metric-help" type="button" aria-label="About LiDAR relative availability" data-tooltip="Percentage of recorder-active time in which LiDAR is available. Global recording gaps are excluded.">i</button>
+        </div>
+        <strong id="lidarRelativeAvailabilityValue">—</strong>
+      </div>
+      <div class="summary-item">
+        <div class="metric-label">
+          <span>Observed streams</span>
+          <button class="metric-help" type="button" aria-label="About observed streams" data-tooltip="Distinct streams present at least once in the dataset, not streams active at every moment.">i</button>
+        </div>
+        <strong id="observedStreamsValue">—</strong>
+      </div>
+    </section>
+
+    <section class="timeline-section">
+      <div class="section-heading">
+        <div><span class="section-index">01</span><h2>Multistream timeline</h2></div>
+        <div id="recordingMeta" class="section-meta">—</div>
+      </div>
+      <div id="timelineLegend" class="timeline-legend"></div>
+      <div class="timeline-frame">
+        <svg id="timeline" role="img" aria-label="Multistream event timeline"></svg>
+      </div>
+    </section>
+
+    <section class="analysis-grid">
+      <div class="finding-section">
+        <div class="section-heading compact">
+          <div><span class="section-index">02</span><h2>Finding register</h2></div>
+          <span id="findingBadge" class="count-badge">0 records</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Role</th><th>Start</th><th>Duration</th><th>Classification</th><th>Confidence</th></tr></thead>
+            <tbody id="findingRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="detail-section">
+        <div class="section-heading compact">
+          <div><span class="section-index">03</span><h2>Finding details</h2></div>
+          <span id="selectedFinding" class="finding-id">—</span>
+        </div>
+        <div id="detailOverview" class="detail-overview"></div>
+        <div class="detail-tabs" role="tablist">
+          <button class="tab active" data-tab="facts" type="button">Confirmed facts</button>
+          <button class="tab" data-tab="assessment" type="button">Assessment</button>
+          <button class="tab" data-tab="evidence" type="button">Evidence</button>
+          <button class="tab" data-tab="tests" type="button">Next tests</button>
+        </div>
+        <div id="detailContent" class="detail-content"></div>
+      </aside>
+    </section>
+
+    <section class="export-band">
+      <div>
+        <span class="section-index">04</span>
+        <h2>Export package</h2>
+      </div>
+      <div class="export-actions">
+        <button class="button export" data-format="csv" type="button">CSV</button>
+        <button class="button export" data-format="json" type="button">JSON</button>
+        <button class="button export" data-format="html" type="button">HTML report</button>
+        <button class="button export" data-format="markdown" type="button">Vendor brief</button>
+        <button id="briefButton" class="button primary" type="button">Generate brief</button>
+      </div>
+    </section>
+
+    <section id="briefPanel" class="brief-panel" hidden>
+      <div class="section-heading compact">
+        <div><span class="section-index">05</span><h2>Engineering brief</h2></div>
+        <span id="briefGenerator" class="count-badge"></span>
+      </div>
+      <pre id="briefText"></pre>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "random_seed": 24052024,
+  "datasets": {
+    "normal_recording": 1804,
+    "lidar_stall_3_4_seconds": 1770,
+    "global_recording_gap": 1298
+  },
+  "statement": "Synthetic public-safe data; no real recording content is included."
+}

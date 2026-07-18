@@ -1,0 +1,4 @@
+finding_id,finding_role,start,end,duration,classification,confidence,streams_stopped,streams_continued,timestamp_disagreement,interpretation
+FND-001,PRIMARY_INCIDENT,5.100000,8.500000,3.400000,LIDAR_STREAM_STALL,HIGH,lidar,encoder;imu;motor,True,Likely LiDAR-specific stream stall while the recorder remained active.
+FND-002,RELATED_FINDING,8.500000,8.530000,0.030000,POST_STALL_CATCH_UP,HIGH,,lidar,True,A short post-stall burst is consistent with delayed publication or queue catch-up.
+FND-003,RELATED_FINDING,8.500000,8.530000,0.030000,STALE_SENSOR_TIMESTAMP,HIGH,,lidar,True,Recorder and sensor timelines are temporarily inconsistent.
